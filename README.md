@@ -1,105 +1,45 @@
-# ==========================================
-# 0. DIAGNOSTIC & SETUP
-# ==========================================
-import os
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder
+# High-Performance Supply Chain Analysis: Demand & Decision Intelligence
 
-# Force images to show in the notebook
-%matplotlib inline
-plt.rcParams['figure.facecolor'] = 'white'
+## Project Overview
+This repository hosts an end-to-end supply chain analytics engine developed in Python. The project is built on a high-performance framework focusing on three core pillars: logic-based mental models, structural data improvements, and decision speed. By processing customer purchase behavior, the system identifies revenue drivers, detects operational friction, and predicts high-value transaction risk.
 
-print("--- System Check ---")
-if not os.path.exists('images'):
-    os.makedirs('images')
-    print("Confirmed: 'images' folder created.")
+## Mental Models & Frameworks
+* **The Pareto Principle (80/20):** Identifying the 20% of product categories and customer segments driving 80% of total revenue.
+* **Information Entropy Reduction:** Standardizing raw datasets into a "Single Source of Truth" to eliminate noise in decision-making.
+* **Throughput Efficiency:** Analyzing the velocity of capital by measuring Revenue per Minute (RPM) across different shopping windows.
 
-# Verify data source
-file_name = 'Customer Purchase Behavior datasets.xlsx'
-if os.path.exists(file_name):
-    print(f"Confirmed: Found {file_name}")
-else:
-    print(f"Error: {file_name} not found. Check your file sidebar.")
+## Technical Stack
+* **Language:** Python 3.x
+* **Environment:** GitHub Codespaces / Jupyter
+* **Libraries:** Pandas, Scikit-Learn, Matplotlib, Seaborn, Openpyxl
+* **Modeling:** Random Forest Classifier for predictive value scoring.
 
-# ==========================================
-# 1. LOAD & CLEAN
-# ==========================================
-df = pd.read_excel(file_name)
-print(f"Data Source Loaded: {df.shape[0]} rows identified.")
+## Operational Phases
 
-# ==========================================
-# 2. CATEGORY PARETO (PHASE 2)
-# ==========================================
-plt.figure(figsize=(10, 6))
-demand = df.groupby('Product_Category')['Total_Spent'].sum().sort_values(ascending=False)
-sns.barplot(x=demand.index, y=demand.values, palette='viridis')
-plt.title('Demand Intelligence: Revenue by Category', fontsize=14)
-plt.ylabel('Total Revenue ($)')
-plt.xticks(rotation=45)
+### Phase 1: Data Integrity
+The ingestion pipeline audits raw Excel data, handles missing values, and ensures structural consistency. This ensures that all downstream logistics decisions are based on verified data.
 
-# Save BEFORE showing
-plt.savefig('images/category_pareto.png', bbox_inches='tight', dpi=300)
-plt.show() 
-print("Step 2: Pareto chart generated and saved to images/category_pareto.png")
+### Phase 2: Demand Intelligence
+A multi-dimensional analysis of revenue by product category and location. This phase identifies "Powerhouse" categories that require high-priority inventory replenishment.
 
-# ==========================================
-# 3. PREDICTIVE DRIVERS (PHASE 4)
-# ==========================================
-# Rapid Encoding
-le = LabelEncoder()
-df['Loc_Enc'] = le.fit_transform(df['Location'])
-df['Seg_Enc'] = le.fit_transform(df['Customer_Segment'])
-features = ['Age', 'Income', 'Loyalty_Points_Used', 'Previous_Purchases', 'Average_Spending', 'Browsing_Time_Before_Purchase', 'Loc_Enc', 'Seg_Enc']
+### Phase 3: Operational Efficiency
+Integration of time-based metrics and recency status. We distinguish between "Active," "Warming," and "Cold" demand to mitigate the risk of inventory obsolescence.
 
-X = df[features]
-y = (df['Total_Spent'] > df['Total_Spent'].median()).astype(int)
+### Phase 4: Predictive Decision Intelligence
+The system utilizes a Random Forest model to calculate the probability of a transaction being "High-Value." 
+* **Outcome:** Provides a `High_Value_Probability` score for every record, allowing logistics teams to prioritize premium fulfillment lanes before orders are processed.
 
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(X, y)
+### Phase 5: Supply Chain Command Center
+A unified reporting module that synthesizes all metrics into a four-quadrant dashboard. 
 
-plt.figure(figsize=(10, 6))
-importances = pd.Series(model.feature_importances_, index=features).sort_values(ascending=False)
-sns.barplot(x=importances.values, y=importances.index, palette='rocket')
-plt.title('Predictive Drivers of Customer Value', fontsize=14)
-plt.xlabel('Importance Score')
+## Strategic Outcomes
+* **Predictive Routing:** Logistics managers can use the exported `supply_chain_action_plan.csv` to route shipments based on predicted customer value.
+* **Inventory Freshness:** Immediate identification of "Cold" demand segments (transactions over 90 days) for targeted liquidation or marketing intervention.
 
-plt.savefig('images/feature_importance.png', bbox_inches='tight', dpi=300)
-plt.show()
-print("Step 3: Feature importance chart generated and saved to images/feature_importance.png")
-
-# ==========================================
-# 4. OPERATIONAL DASHBOARD (PHASE 5)
-# ==========================================
-fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-plt.subplots_adjust(hspace=0.4)
-
-# A. Revenue per Category
-sns.barplot(ax=axes[0, 0], x=demand.index, y=demand.values, palette='viridis')
-axes[0, 0].set_title('Revenue by Category', fontweight='bold')
-axes[0, 0].tick_params(axis='x', rotation=30)
-
-# B. Efficiency Mapping
-sns.scatterplot(ax=axes[0, 1], data=df, x='Browsing_Time_Before_Purchase', y='Total_Spent', hue='Customer_Satisfaction_Rating', palette='RdYlGn', alpha=0.6)
-axes[0, 1].set_title('Throughput: Time vs Spend', fontweight='bold')
-
-# C. Value Predictors
-sns.barplot(ax=axes[1, 0], x=importances.head(5).values, y=importances.head(5).index, palette='magma')
-axes[1, 0].set_title('Top 5 Value Predictors', fontweight='bold')
-
-# D. Demand Freshness
-df['Last_Purchase_Days_Ago'].apply(lambda x: 'Active' if x <= 30 else 'Cold').value_counts().plot(kind='pie', ax=axes[1, 1], autopct='%1.1f%%', colors=['#2ecc71', '#e74c3c'], startangle=90)
-axes[1, 1].set_title('Inventory Demand Signal', fontweight='bold')
-
-plt.suptitle('Supply Chain Operational Command Center', fontsize=20, fontweight='bold')
-plt.savefig('images/operational_dashboard.png', bbox_inches='tight', dpi=300)
-plt.show()
-print("Step 4: Final Dashboard generated and saved to images/operational_dashboard.png")
-
-# Verification check
-print("\n--- FINAL VERIFICATION ---")
-image_files = os.listdir('images')
-print(f"Files currently in images folder: {image_files}")
+## Execution Instructions
+To generate the operational dashboard and the predictive action plan:
+1. Open `analysis.ipynb` in GitHub Codespaces or a Jupyter environment.
+2. Ensure the dataset `Customer Purchase Behavior datasets.xlsx` is in the root directory.
+3. Run all cells to initialize the engine.
+4. **Visualizations:** The script will dynamically generate and display the Category Pareto, Feature Importance, and the Operational Command Center Dashboard.
+5. **Exports:** An actionable CSV will be generated as `supply_chain_action_plan.csv`.
