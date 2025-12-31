@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="images/supply-chain-action-plan-image.png" alt="Supply Chain Action Plan Cover" width="100%">
+  <img src="IMAGES/supply-chain-action-plan-image.png" alt="Supply Chain Action Plan Cover" width="100%">
 </div>
 
 ## Project Overview
