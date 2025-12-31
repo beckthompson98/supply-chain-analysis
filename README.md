@@ -1,7 +1,3 @@
-<div align="center">
-  <img src="cover.png" alt="supply-chain-action-plan-image" width="100%">
-</div>
-
 # Supply Chain Analysis: Demand & Decision Intelligence
 
 ## Project Overview
