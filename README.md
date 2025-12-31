@@ -1,5 +1,7 @@
-![Project Cover](<img width="974" height="641" alt="supply-chain-action-plan-image" src="https://github.com/user-attachments/assets/6ccb95a3-ba12-41a4-b552-7f140e11d9fc" />
-)
+<div align="center">
+  <img src="cover.png" alt="Supply Chain Project Cover" width="100%">
+</div>
+
 # Supply Chain Analysis: Demand & Decision Intelligence
 
 ## Project Overview
@@ -13,11 +15,10 @@ This project provides a data-driven framework for optimizing supply chain operat
 
 ## Technical Stack
 * **Language:** Python 3.x
-* **Libraries:** Pandas, Scikit-Learn, NumPy, Matplotlib, Seaborn
+* **Libraries:** Pandas, Scikit-Learn, NumPy
 * **Model Type:** Random Forest Classifier
 
 ## Strategic Inferences
-Upon execution, the analysis provides the following business intelligence:
 1. **Revenue Concentration:** Identifies which product categories require 15% higher safety stock levels.
 2. **Peak Efficiency:** Maps the specific shopping times that require maximum logistics bandwidth.
 3. **Inventory Risk:** Quantifies "Cold Demand" (customers inactive for >90 days) to prevent capital stagnation.
@@ -25,5 +26,5 @@ Upon execution, the analysis provides the following business intelligence:
 
 ## Execution Instructions
 1. Ensure `Customer Purchase Behavior datasets.xlsx` is in the root directory.
-2. Open the `analysis.ipynb` notebook in GitHub Codespaces or a Jupyter environment.
+2. Open the `analysis.ipynb` notebook in GitHub Codespaces.
 3. Run the analysis script to generate the Operational Dashboard and the `supply_chain_action_plan.csv`.
