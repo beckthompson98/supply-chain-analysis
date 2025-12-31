@@ -1,132 +1,46 @@
-# ==========================================
-# STEP 0: INFRASTRUCTURE SETUP
-# ==========================================
-print("Initializing environment...")
-!pip install pandas numpy matplotlib seaborn openpyxl scikit-learn
+# High-Performance Supply Chain Analysis: Demand & Decision Intelligence
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import os
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
+## Project Overview
+This repository contains a logic-driven supply chain analysis focused on identifying revenue drivers, operational friction, and predictive customer value. The project follows a structured five-phase framework designed to reduce information entropy and increase decision speed for logistics and inventory management.
 
-# ==========================================
-# PHASE 1: DATA INTEGRITY (Source of Truth)
-# ==========================================
-file_name = 'Customer Purchase Behavior datasets.xlsx'
+## Mental Models Applied
+* **The Pareto Principle (80/20):** Identifying the 20% of product categories driving 80% of revenue.
+* **Structural Improvement:** Transitioning from static historical data to active predictive intelligence.
+* **Throughput Efficiency:** Optimizing the relationship between customer engagement time and capital expenditure.
 
-try:
-    df = pd.read_excel(file_name)
-    print("--- Phase 1: Data Loaded Successfully ---")
-    print(f"Dataset Shape: {df.shape}")
-    
-    # Check for missing values
-    if df.isnull().sum().sum() == 0:
-        print("Data Integrity: Clean (No missing values)")
-    else:
-        print("Data Integrity: Missing values detected and handled.")
-        df = df.fillna(df.median(numeric_only=True))
-except Exception as e:
-    print(f"CRITICAL ERROR: Could not find '{file_name}'. Ensure it is in the main folder.")
+## Technical Framework
+* **Environment:** Python 3.x, GitHub Codespaces
+* **Key Libraries:** Pandas, Scikit-Learn, Matplotlib, Seaborn
+* **Data Source:** Customer Purchase Behavior Dataset (Excel)
 
-# ==========================================
-# PHASE 2: DEMAND INTELLIGENCE (Pareto)
-# ==========================================
-demand_summary = df.groupby('Product_Category').agg({
-    'Quantity': 'sum',
-    'Total_Spent': 'sum',
-    'Transaction_ID': 'count'
-}).sort_values(by='Total_Spent', ascending=False)
+## Analysis Phases
 
-# Create and Save Pareto Visual
-plt.figure(figsize=(10, 6))
-sns.barplot(x=demand_summary.index, y=demand_summary['Total_Spent'], palette='viridis')
-plt.title('Phase 2: Revenue by Product Category')
-plt.xticks(rotation=45)
-plt.savefig('category_pareto.png', bbox_inches='tight', dpi=300)
-print("--- Phase 2 Complete: category_pareto.png saved ---")
+### Phase 1: Data Integrity
+Established a clean source of truth by auditing transaction records and ensuring categorical consistency. 
 
-# ==========================================
-# PHASE 3: EFFICIENCY & THROUGHPUT
-# ==========================================
-# Revenue per Minute calculation
-df['Revenue_Per_Minute'] = df['Total_Spent'] / df['Browsing_Time_Before_Purchase']
+### Phase 2: Demand Intelligence
+Segmented total revenue by product category to identify core market drivers.
 
-# Recency Labeling (Supply Chain Freshness)
-def recency_label(days):
-    if days <= 30: return '1. Active'
-    elif days <= 90: return '2. Warming'
-    else: return '3. Cold'
-df['Recency_Status'] = df['Last_Purchase_Days_Ago'].apply(recency_label)
-recency_counts = df['Recency_Status'].value_counts().sort_index()
+![Category Performance](images/category_pareto.png)
 
-print("--- Phase 3 Complete: Efficiency metrics calculated ---")
+### Phase 3: Operational Throughput
+Calculated Revenue per Minute (RPM) and demand recency to identify inventory risk.
 
-# ==========================================
-# PHASE 4: PREDICTIVE MODELING (Decision Intelligence)
-# ==========================================
-# Target: High-Value Transaction (Top 30%)
-threshold = df['Total_Spent'].quantile(0.70)
-df['Is_High_Value'] = (df['Total_Spent'] > threshold).astype(int)
+### Phase 4: Predictive Decision Intelligence
+Deployed a Random Forest Classifier to identify high-value transactions before finalization. This allows for predictive logistics routing and prioritized fulfillment.
 
-# Feature Engineering
-features = ['Age', 'Income', 'Loyalty_Points_Used', 'Previous_Purchases', 
-            'Average_Spending', 'Browsing_Time_Before_Purchase', 'Customer_Satisfaction_Rating']
-le = LabelEncoder()
-df['Location_Encoded'] = le.fit_transform(df['Location'])
-df['Segment_Encoded'] = le.fit_transform(df['Customer_Segment'])
-X_features = features + ['Location_Encoded', 'Segment_Encoded']
+![Predictive Drivers](images/feature_importance.png)
 
-X = df[X_features]
-y = df['Is_High_Value']
+### Phase 5: Supply Chain Command Center
+Synthesized all operational signals into a high-density executive dashboard.
 
-# Train Model
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(X_train, y_train)
+![Operational Dashboard](images/operational_dashboard.png)
 
-# Save Feature Importance Plot
-importances = pd.DataFrame({'Feature': X_features, 'Importance': model.feature_importances_}).sort_values(by='Importance', ascending=False)
-plt.figure(figsize=(10, 6))
-sns.barplot(data=importances, x='Importance', y='Feature', palette='rocket')
-plt.title('Phase 4: Drivers of High-Value Transactions')
-plt.savefig('feature_importance.png', bbox_inches='tight', dpi=300)
-print("--- Phase 4 Complete: feature_importance.png saved ---")
+## Strategic Outcomes
+* **Predictive Asset Allocation:** The system now assigns a probability score to every customer, enabling the prioritization of high-value shipments.
+* **Risk Mitigation:** Real-time recency tracking identifies "Cold" demand segments for immediate inventory re-allocation.
 
-# ==========================================
-# PHASE 5: COMMAND CENTER DASHBOARD
-# ==========================================
-fig, axes = plt.subplots(2, 2, figsize=(16, 10))
-plt.subplots_adjust(hspace=0.4)
-
-# A. Category Revenue
-sns.barplot(ax=axes[0, 0], x=demand_summary.index, y=demand_summary['Total_Spent'], palette='viridis')
-axes[0, 0].set_title('Revenue by Category')
-
-# B. Efficiency Mapping
-sns.scatterplot(ax=axes[0, 1], data=df, x='Browsing_Time_Before_Purchase', y='Total_Spent', hue='Customer_Satisfaction_Rating', palette='RdYlGn', alpha=0.5)
-axes[0, 1].set_title('Efficiency: Browsing Time vs. Spend')
-
-# C. Top 5 Predictive Drivers
-sns.barplot(ax=axes[1, 0], data=importances.head(5), x='Importance', y='Feature', palette='magma')
-axes[1, 0].set_title('Predictive Decision Drivers')
-
-# D. Inventory Freshness (Recency)
-recency_counts.plot(kind='bar', ax=axes[1, 1], color=['#2ecc71', '#f1c40f', '#e74c3c'])
-axes[1, 1].set_title('Demand Freshness (Active to Cold)')
-
-plt.suptitle('SUPPLY CHAIN OPERATIONAL DASHBOARD', fontsize=20, fontweight='bold')
-plt.savefig('operational_dashboard.png', bbox_inches='tight', dpi=400)
-plt.show()
-
-# Final Alpha Export
-df['High_Value_Probability'] = model.predict_proba(X)[:, 1]
-df.to_csv('supply_chain_action_plan.csv', index=False)
-print("\n--- ALL PHASES COMPLETE ---")
-print("1. Dashboard: operational_dashboard.png saved")
-print("2. Action Plan: supply_chain_action_plan.csv exported")
-print(f"3. High-Value Prediction Accuracy: {model.score(X_test, y_test):.2%}")
+## How to Execute
+1. Clone the repository to a local or cloud environment.
+2. Run `pip install -r requirements.txt` (or manually install pandas, scikit-learn, and seaborn).
+3. Execute the `analysis.ipynb` notebook to generate updated reports and images.
