@@ -1,4 +1,6 @@
-# Supply Chain Analysis: Demand & Decision Intelligence
+<div align="center">
+  <img src="supply-chain-action-plan-image.png" alt="Supply Chain Action Plan Cover" width="100%">
+</div>
 
 ## Project Overview
 This project provides a data-driven framework for optimizing supply chain operations. By analyzing customer purchase behavior, the system identifies core revenue drivers, evaluates operational efficiency, and utilizes machine learning to predict high-value logistics requirements.
