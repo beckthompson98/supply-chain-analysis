@@ -1,3 +1,5 @@
+![Project Cover](<img width="974" height="641" alt="supply-chain-action-plan-image" src="https://github.com/user-attachments/assets/6ccb95a3-ba12-41a4-b552-7f140e11d9fc" />
+)
 # Supply Chain Analysis: Demand & Decision Intelligence
 
 ## Project Overview
